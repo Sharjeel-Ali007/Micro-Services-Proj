@@ -1,49 +1,55 @@
-// require("dotenv").config();
-// const express = require("express");
-// const gatewayRoutes = require("./routes/gatewayRoutes");
-
-// const app = express();
-// // app.use(express.json());
-
-// app.use("/", gatewayRoutes);
-
-// const PORT = process.env.API_GATEWAY_PORT || 3000;
-// app.listen(PORT, () => {
-//   console.log(`API Gateway running on port ${PORT}`);
-// });
-//
-//
 require("dotenv").config();
+const cluster = require("cluster");
+const os = require("os");
 const fs = require("fs");
 const https = require("https");
 const express = require("express");
 const path = require("path");
 
-const gatewayRoutes = require("./routes/gatewayRoutes");
-const rateLimiter = require("./middleWare/rateLimiter/rateLimiter"); // Rate limiter middleware
-const corsMiddleware = require("./middleWare/cors/cors"); // CORS middleware
+if (cluster.isMaster) {
+  const numCPUs = os.cpus().length;
+  console.log(`Master ${process.pid} is running`);
 
-const app = express();
+  // Fork workers
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
 
-// CORS
-app.use(corsMiddleware);
+  cluster.on("exit", (worker, code, signal) => {
+    console.log(`Worker ${worker.process.pid} died`);
+    // Restart the worker
+    cluster.fork();
+  });
+} else {
+  // Worker process
+  const gatewayRoutes = require("./routes/gatewayRoutes");
+  const rateLimiter = require("./middleWare/rateLimiter/rateLimiter");
+  const corsMiddleware = require("./middleWare/cors/cors");
 
-// Rate limiter
-app.use(rateLimiter);
+  const app = express();
 
-// app.use(express.json());
+  // CORS
+  app.use(corsMiddleware);
 
-// Routes
-app.use("/", gatewayRoutes);
+  // Rate limiter
+  app.use(rateLimiter);
 
-// SSL certificate
-const sslOptions = {
-  key: fs.readFileSync(path.join(__dirname, "middleWare", "ssl", "key.pem")),
-  cert: fs.readFileSync(path.join(__dirname, "middleWare", "ssl", "cert.pem")),
-};
+  // Routes
+  app.use("/", gatewayRoutes);
 
-const PORT = process.env.API_GATEWAY_PORT || 443;
+  // SSL certificate
+  const sslCert = {
+    key: fs.readFileSync(path.join(__dirname, "middleWare", "ssl", "key.pem")),
+    cert: fs.readFileSync(
+      path.join(__dirname, "middleWare", "ssl", "cert.pem")
+    ),
+  };
 
-https.createServer(sslOptions, app).listen(PORT, () => {
-  console.log(`API Gateway running securely at https://localhost:${PORT}`);
-});
+  const PORT = process.env.API_GATEWAY_PORT || 443;
+
+  https.createServer(sslCert, app).listen(PORT, () => {
+    console.log(
+      `Worker ${process.pid} started: API Gateway running securely at https://localhost:${PORT}`
+    );
+  });
+}

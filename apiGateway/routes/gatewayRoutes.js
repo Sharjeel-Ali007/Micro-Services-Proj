@@ -43,7 +43,7 @@ router.use(
   })
 );
 
-// Catch-all for unmatched routes
+// all other routes
 router.use((req, res) => {
   console.log(`No route found for: ${req.method} ${req.originalUrl}`);
   res.status(404).send("Route not found");
