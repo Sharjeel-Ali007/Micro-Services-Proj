@@ -1,0 +1,14 @@
+# .gitignore (root level)
+
+# Ignore all .env files (global)
+**/.env
+**/*.env
+
+# Ignore all node_modules (global)
+**/node_modules/
+
+# Ignore all ssl/ directories (global)
+**/ssl/
+
+# Ignore all uploads/ directories (global)
+**/uploads/
