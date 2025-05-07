@@ -2,11 +2,6 @@ const express = require("express");
 const router = express.Router();
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
-// router.use((req, res, next) => {
-//   console.log(`API Gateway received: ${req.method} ${req.originalUrl}`);
-//   next();
-// });
-
 // Proxy for admin-service
 router.use(
   "/admins",

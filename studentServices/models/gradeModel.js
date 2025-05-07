@@ -1,16 +1,24 @@
-const db = require("../../studentServices/db/db");
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/db");
 
-const Grade = {
-  getAll: (callback) => {
-    db.query("SELECT * FROM grades", callback);
+const Grade = sequelize.define(
+  "Grade",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    grade_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
   },
-  getByName: (grade_name, callback) => {
-    db.query(
-      "SELECT * FROM grades WHERE grade_name = ?",
-      [grade_name],
-      callback
-    );
-  },
-};
+  {
+    tableName: "grades",
+    timestamps: false,
+  }
+);
 
 module.exports = Grade;

@@ -1,17 +1,18 @@
+// const fs = require("fs");
+// const https = require("https");
+
 require("dotenv").config();
 const cluster = require("cluster");
 const os = require("os");
-const fs = require("fs");
-const https = require("https");
-const express = require("express");
 const path = require("path");
+const express = require("express");
 
 if (cluster.isMaster) {
   const numCPUs = os.cpus().length;
   console.log(`Master ${process.pid} is running`);
 
   // Fork workers
-  for (let i = 0; i < numCPUs; i++) {
+  for (let i = 0; i < numCPUs - 8; i++) {
     cluster.fork();
   }
 
@@ -36,20 +37,15 @@ if (cluster.isMaster) {
 
   // Routes
   app.use("/", gatewayRoutes);
+  //
+  app.get("/sup", (req, res) => {
+    res.status(200).json({ status: "API Gateway is healthy" });
+  });
 
-  // SSL certificate
-  const sslCert = {
-    key: fs.readFileSync(path.join(__dirname, "middleWare", "ssl", "key.pem")),
-    cert: fs.readFileSync(
-      path.join(__dirname, "middleWare", "ssl", "cert.pem")
-    ),
-  };
-
-  const PORT = process.env.API_GATEWAY_PORT || 443;
-
-  https.createServer(sslCert, app).listen(PORT, () => {
+  const PORT = process.env.API_GATEWAY_PORT || 3000;
+  app.listen(PORT, () => {
     console.log(
-      `Worker ${process.pid} started: API Gateway running securely at https://localhost:${PORT}`
+      `Worker ${process.pid} started: API Gateway running at http://localhost:${PORT}`
     );
   });
 }
