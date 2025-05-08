@@ -6,6 +6,7 @@ const cluster = require("cluster");
 const os = require("os");
 const path = require("path");
 const express = require("express");
+const config = require("./environments/config");
 
 if (cluster.isMaster) {
   const numCPUs = os.cpus().length;
@@ -42,10 +43,10 @@ if (cluster.isMaster) {
     res.status(200).json({ status: "API Gateway is healthy" });
   });
 
-  const PORT = process.env.API_GATEWAY_PORT || 3000;
+  const PORT = config.port || 3000;
   app.listen(PORT, () => {
     console.log(
-      `Worker ${process.pid} started: API Gateway running at http://localhost:${PORT}`
+      `Worker ${process.pid} started: API Gateway running at http://localhost:${config.port}`
     );
   });
 }

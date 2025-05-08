@@ -3,6 +3,7 @@ const express = require("express");
 const sequelize = require("./config/db");
 const gradeServices = require("./services/gradeServices");
 const studentRoutes = require("./routes/studentRoutes");
+const config = require("./environments/config");
 
 const app = express();
 app.use(express.json());
@@ -23,10 +24,8 @@ sequelize
     await gradeServices.seedInitialGrades();
 
     //Server
-    app.listen(process.env.STUDENT_SERVICE_PORT, () => {
-      console.log(
-        `Student service running on port ${process.env.STUDENT_SERVICE_PORT}`
-      );
+    app.listen(config.port, () => {
+      console.log(`Student service running on port ${config.port}`);
     });
   })
   .catch((err) => {

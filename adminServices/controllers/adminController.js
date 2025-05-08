@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const adminService = require("../services/adminServices");
 const redisClient = require("../redis/redisClient");
 require("dotenv").config();
+const config = require("../environments/config");
 
 // Register Admin
 exports.register = async (req, res) => {
@@ -33,11 +34,9 @@ exports.login = async (req, res) => {
     const valid = await bcrypt.compare(password, admin.password);
     if (!valid) return res.status(400).send("Invalid credentials");
 
-    const token = jwt.sign(
-      { id: admin.id, role: "admin" },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
+    const token = jwt.sign({ id: admin.id, role: "admin" }, config.jwt_secret, {
+      expiresIn: "1d",
+    });
 
     res.send({ token });
   } catch (err) {

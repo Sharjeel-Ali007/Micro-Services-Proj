@@ -1,2 +1,4 @@
 node_modules/
-.env
+# Ignore environment-specific config files
+/environments/.env.development
+/environments/.env.production

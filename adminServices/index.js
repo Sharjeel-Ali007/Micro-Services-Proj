@@ -1,31 +1,9 @@
-// require("dotenv").config();
-// const express = require("express");
-// const sequelize = require("./config/database");
-// require("./models/Admin");
-// const adminRoutes = require("./routes/adminRoutes");
-
-// const app = express();
-// app.use(express.json());
-
-// // Routes
-// app.get("/health", (req, res) => {
-//   res.status(200).json({ status: "Admins Service is healthy" });
-// });
-
-// app.use("/", adminRoutes);
-
-// app.listen(process.env.ADMIN_SERVICE_PORT, () => {
-//   console.log(
-//     `Admin service running on port ${process.env.ADMIN_SERVICE_PORT}`
-//   );
-// });
-//
-
 require("dotenv").config();
 const express = require("express");
 const sequelize = require("./config/db");
 require("./models/adminModel");
 const adminRoutes = require("./routes/adminRoutes");
+const config = require("./environments/config");
 
 const app = express();
 
@@ -46,10 +24,8 @@ sequelize
     console.log("Database synced");
 
     // Server
-    app.listen(process.env.ADMIN_SERVICE_PORT, () => {
-      console.log(
-        `Admin service running on port ${process.env.ADMIN_SERVICE_PORT}`
-      );
+    app.listen(config.port, () => {
+      console.log(`Admin service running on port ${config.port}`);
     });
   })
   .catch((err) => {

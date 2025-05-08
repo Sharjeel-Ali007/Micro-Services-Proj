@@ -1,8 +1,10 @@
-# .gitignore (root level)
+# .gitignore root level
 
 # Ignore all .env files (global)
 **/.env
 **/*.env
+**/.env.development
+**/.env.production
 
 # Ignore all node_modules (global)
 **/node_modules/
